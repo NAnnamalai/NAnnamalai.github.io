@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Table Filtering</title>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/dc/3.0.8/dc.css"/>
+</head>
+<body>
+
+  <nav class="navbar navbar-light bg-light">
+    <a class="navbar-brand" href="#"> Table Filtering </a>
+  </nav>
+
+  <div class="container">
+      <div class="row">
+        <div class="col-xs-3">
+          <div id="search""></div>
+        </div>
+
+        <div class="col-xs-9">
+          <table class="table table-responsive table-striped table_grid">
+            <thead>
+              <tr class=header>
+                <th>Id</th>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Company</th>
+                <th>Designation</th>
+              </tr>
+            </thead>
+          </table>
+        </div>
+      </div>
+  </div>
+
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.7.0/d3.js"></script>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/crossfilter2/1.4.6/crossfilter.js"></script>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/dc/3.0.8/dc.js"></script>
+  <script type="text/javascript">
+      // read data from random.json
+      d3.json("random.json")
+        .then(function(df){
+          draw(df['employees'])
+      })
+
+      // pass the list of columns which allows to search thorugh
+      function draw(data){
+          var ndx = crossfilter(data),
+          dimension = ndx.dimension(function (d) {
+              return d.id + ' ' + d.first_name + ' ' + d.last_name + ' ' + d.company + ' ' + d.designation;
+          });
+
+          var chart = dc.textFilterWidget("#search")
+              .dimension(dimension);
+
+          // display table
+          dc.dataTable('.table_grid')
+              .dimension(dimension)
+              .group(function (d) {  return d.company.bold().fontcolor("darkGreen"); })
+              .columns([
+                  function (d) { return d.id; },
+                  function (d) { return d.first_name; },
+                  function (d) { return d.last_name; },
+                  function (d) { return d.company; },
+                  function (d) { return d.designation; }
+              ])
+              .order(d3.descending)
+        .renderlet(function (d) { });
+
+          dc.renderAll();
+      }
+  </script>
+
+</body>
+</html>
